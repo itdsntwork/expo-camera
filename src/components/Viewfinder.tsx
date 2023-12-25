@@ -9,10 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ViewfinderControls from './ViewfinderControls';
+import { useCameraContext } from '../contexts/camera/camera.context';
 const { useCameraPermissions } = Camera;
 
 function Viewfinder() {
-  const [type, setType] = useState(CameraType.back);
+  const { type, flashMode } = useCameraContext();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const cameraRef = useRef<Camera>(null);
@@ -21,15 +23,7 @@ function Viewfinder() {
     requestCameraPermission();
   }
 
-  function toggleCameraType() {
-    setType((current) =>
-      current === CameraType.back ? CameraType.front : CameraType.back,
-    );
-  }
-
-  const { ratio, imagePadding } = useRatioProps(cameraRef?.current);
-
-  console.log('asdfasdf', ratio, imagePadding);
+  const { ratio, imagePadding } = useRatioProps(cameraRef?.current, type);
 
   return (
     <View
@@ -46,18 +40,17 @@ function Viewfinder() {
         ]}
         type={type}
         ratio={ratio}
+        flashMode={flashMode}
       >
-        <View>
-          {/* <TouchableOpacity style={styles.button} onPress={toggleCameraType}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity> */}
+        <View className="flex-1 bg-transparent ">
+          <ViewfinderControls />
         </View>
       </Camera>
     </View>
   );
 }
 
-const useRatioProps = (camera?: Camera | null) => {
+const useRatioProps = (camera: Camera | null, type: CameraType) => {
   const [ratio, setRatio] = useState<string>('4:3');
   const [imagePadding, setImagePadding] = useState<number>(0);
 
@@ -103,7 +96,7 @@ const useRatioProps = (camera?: Camera | null) => {
     }
 
     prepareRatio();
-  }, [camera]);
+  }, [camera, type]);
 
   return { ratio, imagePadding };
 };
