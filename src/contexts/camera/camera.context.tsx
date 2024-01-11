@@ -12,6 +12,8 @@ export type CameraContextProps = {
   setFlashMode: (flashMode: FlashMode) => void;
   type: CameraType;
   setType: (type: CameraType) => void;
+  zoom: number;
+  augmentZoom: (zoom: number) => void;
   onClose?: () => void;
 };
 
@@ -20,6 +22,8 @@ const defaultContext: CameraContextProps = {
   setFlashMode: () => {},
   type: CameraType.back,
   setType: () => {},
+  zoom: 0,
+  augmentZoom: () => {},
 };
 
 const CameraContext = createContext<CameraContextProps>(defaultContext);
@@ -34,6 +38,7 @@ interface Action {
 enum ActionType {
   SET_FLASH_MODE = 'SET_FLASH_MODE',
   SET_TYPE = 'SET_TYPE',
+  SET_ZOOM = 'SET_ZOOM',
 }
 
 const reducer = (state: CameraContextProps, action: Action) => {
@@ -48,6 +53,11 @@ const reducer = (state: CameraContextProps, action: Action) => {
       return {
         ...state,
         type: payload,
+      };
+    case ActionType.SET_ZOOM:
+      return {
+        ...state,
+        zoom: payload,
       };
     default:
       return state;
@@ -65,14 +75,28 @@ export const CameraContextProvider = ({ children, onClose }: ProviderProps) => {
     dispatch({ type: ActionType.SET_TYPE, payload: type });
   }, []);
 
+  const augmentZoom = useCallback(
+    (value: number) => {
+      let zoom: number = Math.round(state.zoom + value * 100) / 100;
+      if (zoom < 0) {
+        zoom = 0;
+      } else if (zoom > 1) {
+        zoom = 1;
+      }
+      dispatch({ type: ActionType.SET_ZOOM, payload: zoom });
+    },
+    [state.zoom],
+  );
+
   const value = useMemo(
     () => ({
       ...state,
       setFlashMode,
       setType,
+      augmentZoom,
       onClose,
     }),
-    [state, setFlashMode, setType, onClose],
+    [state, setFlashMode, setType, onClose, augmentZoom],
   );
 
   return (

@@ -7,9 +7,9 @@ import CloseButton from './CloseButton';
 
 export default function ViewfinderControls() {
   return (
-    <View className="flex-col content-between justify-between flex-1 pt-6">
+    <View className="flex-col content-between justify-between flex-1 w-full pt-6">
       <ControlsContainer>
-        <CloseButton/>
+        <CloseButton />
         <FlashSelector />
       </ControlsContainer>
       <ControlsContainer>

@@ -11,10 +11,11 @@ import {
 } from 'react-native';
 import ViewfinderControls from './ViewfinderControls';
 import { useCameraContext } from '../contexts/camera/camera.context';
+import ZoomHandler from './ZoomHandler';
 const { useCameraPermissions } = Camera;
 
 function Viewfinder() {
-  const { type, flashMode } = useCameraContext();
+  const { type, flashMode, zoom } = useCameraContext();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const cameraRef = useRef<Camera>(null);
@@ -41,9 +42,12 @@ function Viewfinder() {
         type={type}
         ratio={ratio}
         flashMode={flashMode}
+        zoom={zoom}
       >
-        <View className="flex-1 bg-transparent ">
-          <ViewfinderControls />
+        <View className="flex-1 bg-transparent">
+          <ZoomHandler>
+            <ViewfinderControls />
+          </ZoomHandler>
         </View>
       </Camera>
     </View>
