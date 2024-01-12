@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import FlashSelector from './FlashSwitch';
 import TypeSwitch from './TypeSwitch';
 import CloseButton from './CloseButton';
+import ShutterButton from './ShutterButton';
 
 export default function ViewfinderControls() {
   return (
@@ -13,6 +14,8 @@ export default function ViewfinderControls() {
         <FlashSelector />
       </ControlsContainer>
       <ControlsContainer>
+        <View className='w-12'></View>
+        <ShutterButton />
         <TypeSwitch />
       </ControlsContainer>
     </View>

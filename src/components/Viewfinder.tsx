@@ -12,10 +12,12 @@ import {
 import ViewfinderControls from './ViewfinderControls';
 import { useCameraContext } from '../contexts/camera/camera.context';
 import ZoomHandler from './ZoomHandler';
+import Preview from './Preview';
 const { useCameraPermissions } = Camera;
 
 function Viewfinder() {
-  const { type, flashMode, zoom } = useCameraContext();
+  const { type, flashMode, zoom, setCamera, previewCapture } =
+    useCameraContext();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const cameraRef = useRef<Camera>(null);
@@ -26,6 +28,11 @@ function Viewfinder() {
 
   const { ratio, imagePadding } = useRatioProps(cameraRef?.current, type);
 
+  useEffect(() => {
+    if (!cameraRef.current) return;
+    setCamera(cameraRef.current);
+  }, [cameraRef.current]);
+
   return (
     <View
       style={{
@@ -34,22 +41,26 @@ function Viewfinder() {
         justifyContent: 'center',
       }}
     >
-      <Camera
-        ref={cameraRef}
-        style={[
-          { flex: 1, marginTop: imagePadding, marginBottom: imagePadding },
-        ]}
-        type={type}
-        ratio={ratio}
-        flashMode={flashMode}
-        zoom={zoom}
-      >
-        <View className="flex-1 bg-transparent">
-          <ZoomHandler>
-            <ViewfinderControls />
-          </ZoomHandler>
-        </View>
-      </Camera>
+      {previewCapture ? (
+        <Preview />
+      ) : (
+        <Camera
+          ref={cameraRef}
+          style={[
+            { flex: 1, marginTop: imagePadding, marginBottom: imagePadding },
+          ]}
+          type={type}
+          ratio={ratio}
+          flashMode={flashMode}
+          zoom={zoom}
+        >
+          <View className="flex-1 bg-transparent">
+            <ZoomHandler>
+              <ViewfinderControls />
+            </ZoomHandler>
+          </View>
+        </Camera>
+      )}
     </View>
   );
 }

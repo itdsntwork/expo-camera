@@ -1,4 +1,9 @@
-import { CameraType, FlashMode } from 'expo-camera';
+import {
+  Camera,
+  CameraCapturedPicture,
+  CameraType,
+  FlashMode,
+} from 'expo-camera';
 import React, {
   createContext,
   useCallback,
@@ -8,6 +13,12 @@ import React, {
 } from 'react';
 
 export type CameraContextProps = {
+  camera?: Camera;
+  setCamera: (camera: Camera) => void;
+  previewCapture?: CameraCapturedPicture | { uri: string };
+  setPreviewCapture: (
+    previewCapture?: CameraCapturedPicture | { uri: string },
+  ) => void;
   flashMode: FlashMode;
   setFlashMode: (flashMode: FlashMode) => void;
   type: CameraType;
@@ -18,6 +29,10 @@ export type CameraContextProps = {
 };
 
 const defaultContext: CameraContextProps = {
+  camera: undefined,
+  setCamera: () => {},
+  previewCapture: undefined,
+  setPreviewCapture: () => {},
   flashMode: FlashMode.on,
   setFlashMode: () => {},
   type: CameraType.back,
@@ -36,6 +51,8 @@ interface Action {
 }
 
 enum ActionType {
+  SET_CAMERA = 'SET_CAMERA',
+  SET_PREVIEW_CAPTURE = 'SET_PREVIEW_CAPTURE',
   SET_FLASH_MODE = 'SET_FLASH_MODE',
   SET_TYPE = 'SET_TYPE',
   SET_ZOOM = 'SET_ZOOM',
@@ -44,6 +61,16 @@ enum ActionType {
 const reducer = (state: CameraContextProps, action: Action) => {
   const { type, payload } = action;
   switch (type) {
+    case ActionType.SET_CAMERA:
+      return {
+        ...state,
+        camera: payload,
+      };
+    case ActionType.SET_PREVIEW_CAPTURE:
+      return {
+        ...state,
+        previewCapture: payload,
+      };
     case ActionType.SET_FLASH_MODE:
       return {
         ...state,
@@ -88,15 +115,42 @@ export const CameraContextProvider = ({ children, onClose }: ProviderProps) => {
     [state.zoom],
   );
 
+  const setCamera = useCallback(
+    (camera: Camera) => {
+      dispatch({ type: ActionType.SET_CAMERA, payload: camera });
+    },
+    [dispatch],
+  );
+
+  const setPreviewCapture = useCallback(
+    (previewCapture?: CameraCapturedPicture | { uri: string }) => {
+      dispatch({
+        type: ActionType.SET_PREVIEW_CAPTURE,
+        payload: previewCapture,
+      });
+    },
+    [dispatch],
+  );
+
   const value = useMemo(
     () => ({
       ...state,
+      setCamera,
+      setPreviewCapture,
       setFlashMode,
       setType,
       augmentZoom,
       onClose,
     }),
-    [state, setFlashMode, setType, onClose, augmentZoom],
+    [
+      state,
+      setFlashMode,
+      setType,
+      onClose,
+      augmentZoom,
+      setCamera,
+      setPreviewCapture,
+    ],
   );
 
   return (
