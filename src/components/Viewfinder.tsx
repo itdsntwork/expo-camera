@@ -16,7 +16,7 @@ import Preview from './Preview';
 const { useCameraPermissions } = Camera;
 
 function Viewfinder() {
-  const { type, flashMode, zoom, setCamera, capture } =
+  const { type, flashMode, zoom, setCamera, capture, showPreview } =
     useCameraContext();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
@@ -41,7 +41,7 @@ function Viewfinder() {
         justifyContent: 'center',
       }}
     >
-      {capture ? (
+      {showPreview && capture ? (
         <Preview />
       ) : (
         <Camera

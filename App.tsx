@@ -6,7 +6,11 @@ export default function App() {
   const [cameraOpen, setCameraOpen] = useState(true);
 
   return cameraOpen ? (
-    <Camera onClose={() => setCameraOpen(false)} />
+    <Camera
+      onClose={() => setCameraOpen(false)}
+      showPreview={true}
+      onCapture={(d) => console.log('APP', d)}
+    />
   ) : (
     <View className="items-center justify-center flex-1">
       <Text>Camera Closed</Text>

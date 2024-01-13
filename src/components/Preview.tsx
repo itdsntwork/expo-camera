@@ -9,11 +9,15 @@ import { Ionicons } from '@expo/vector-icons';
 const iconSize = 60;
 
 const Preview = () => {
-  const { capture, setCapture } = useCameraContext();
+  const { capture, setCapture, dispatchCapture } = useCameraContext();
 
   const onClose = useCallback(() => {
     setCapture(undefined);
   }, [setCapture]);
+
+  const onAccept = useCallback(() => {
+    dispatchCapture();
+  }, [dispatchCapture]);
 
   return (
     <View>
@@ -28,7 +32,7 @@ const Preview = () => {
             source={{ uri: capture.uri }}
           />
           <View className="absolute flex-row items-end justify-between w-full h-full p-12 pb-20">
-            <TouchableOpacity onPress={() => {}}>
+            <TouchableOpacity onPress={onAccept}>
               <Ionicons name="checkmark" size={iconSize} color="white" />
             </TouchableOpacity>
             <TouchableOpacity onPress={onClose}>

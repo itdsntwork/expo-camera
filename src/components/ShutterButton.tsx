@@ -7,14 +7,13 @@ import {
 } from '../contexts/camera/camera.context';
 
 export default function ShutterButton() {
-  const { camera, setCapture } = useCameraContext();
+  const { camera, cameraPictureOptions, onCapture } = useCameraContext();
 
   const onPress = async () => {
-    const options = { quality: 0.5, base64: true };
-    const data = await camera?.takePictureAsync(options);
+    const data = await camera?.takePictureAsync(cameraPictureOptions);
 
     if (data) {
-      setCapture({ ...data, type: CaptureType.PHOTO });
+      onCapture({ ...data, type: CaptureType.PHOTO });
     }
   };
 

@@ -1,11 +1,23 @@
 import { View } from 'react-native';
 import { Viewfinder } from './Viewfinder';
-import { CameraContextProvider } from '../contexts/camera/camera.context';
+import {
+  CameraContextProvider,
+  Capture,
+} from '../contexts/camera/camera.context';
 
-export default function Camera({ visible = true, onClose }: Props) {
+export default function Camera({
+  visible = true,
+  showPreview,
+  onClose,
+  onCapture,
+}: Props) {
   return (
     visible && (
-      <CameraContextProvider onClose={onClose}>
+      <CameraContextProvider
+        onClose={onClose}
+        showPreview={showPreview}
+        onCapture={onCapture}
+      >
         <View
           style={{
             flex: 1,
@@ -23,4 +35,6 @@ export default function Camera({ visible = true, onClose }: Props) {
 type Props = {
   visible?: boolean;
   onClose?: () => void;
+  showPreview?: boolean;
+  onCapture?: (capture?: Capture) => void;
 };

@@ -1,6 +1,7 @@
 import {
   Camera,
   CameraCapturedPicture,
+  CameraPictureOptions,
   CameraType,
   FlashMode,
 } from 'expo-camera';
@@ -13,30 +14,36 @@ import React, {
 } from 'react';
 
 export type CameraContextProps = {
-  camera?: Camera;
-  setCamera: (camera: Camera) => void;
-  capture?: Capture;
-  setCapture: (previewCapture?: Capture) => void;
-  flashMode: FlashMode;
-  setFlashMode: (flashMode: FlashMode) => void;
-  type: CameraType;
-  setType: (type: CameraType) => void;
-  zoom: number;
   augmentZoom: (zoom: number) => void;
+  camera?: Camera;
+  cameraPictureOptions?: CameraPictureOptions;
+  capture?: Capture;
+  dispatchCapture: (capture?: Capture) => void;
+  flashMode: FlashMode;
+  onCapture: (capture?: Capture) => void;
   onClose?: () => void;
+  setCamera: (camera: Camera) => void;
+  setCapture: (previewCapture?: Capture) => void;
+  setFlashMode: (flashMode: FlashMode) => void;
+  setType: (type: CameraType) => void;
+  showPreview?: boolean;
+  type: CameraType;
+  zoom: number;
 };
 
 const defaultContext: CameraContextProps = {
-  camera: undefined,
-  setCamera: () => {},
-  capture: undefined,
-  setCapture: () => {},
-  flashMode: FlashMode.on,
-  setFlashMode: () => {},
-  type: CameraType.back,
-  setType: () => {},
-  zoom: 0,
   augmentZoom: () => {},
+  camera: undefined,
+  capture: undefined,
+  dispatchCapture: () => {},
+  flashMode: FlashMode.on,
+  onCapture: () => {},
+  setCamera: () => {},
+  setCapture: () => {},
+  setFlashMode: () => {},
+  setType: () => {},
+  type: CameraType.back,
+  zoom: 0,
 };
 
 const CameraContext = createContext<CameraContextProps>(defaultContext);
@@ -50,8 +57,8 @@ interface Action {
 
 enum ActionType {
   SET_CAMERA = 'SET_CAMERA',
-  SET_PREVIEW_CAPTURE = 'SET_PREVIEW_CAPTURE',
   SET_FLASH_MODE = 'SET_FLASH_MODE',
+  SET_PREVIEW_CAPTURE = 'SET_PREVIEW_CAPTURE',
   SET_TYPE = 'SET_TYPE',
   SET_ZOOM = 'SET_ZOOM',
 }
@@ -89,7 +96,11 @@ const reducer = (state: CameraContextProps, action: Action) => {
   }
 };
 
-export const CameraContextProvider = ({ children, onClose }: ProviderProps) => {
+export const CameraContextProvider = ({
+  children,
+  onCapture: _onCapture,
+  ...props
+}: ProviderProps) => {
   const [state, dispatch] = useReducer(reducer, defaultContext);
 
   const setFlashMode = useCallback((flashMode: FlashMode) => {
@@ -130,17 +141,44 @@ export const CameraContextProvider = ({ children, onClose }: ProviderProps) => {
     [dispatch],
   );
 
+  const dispatchCapture = useCallback(
+    (capture?: Capture) => {
+      _onCapture?.(capture || state.capture);
+      setCapture(undefined);
+    },
+    [dispatch, _onCapture, state.capture],
+  );
+
+  const onCapture = useCallback(
+    (capture?: Capture) => {
+      props.showPreview ? setCapture(capture) : dispatchCapture?.(capture);
+    },
+    [dispatchCapture, setCapture, props.showPreview],
+  );
+
   const value = useMemo(
     () => ({
       ...state,
+      ...props,
+      onCapture,
+      dispatchCapture,
       setCamera,
       setCapture,
       setFlashMode,
       setType,
       augmentZoom,
-      onClose,
     }),
-    [state, setFlashMode, setType, onClose, augmentZoom, setCamera, setCapture],
+    [
+      state,
+      props,
+      setFlashMode,
+      setType,
+      augmentZoom,
+      setCamera,
+      dispatchCapture,
+      setCapture,
+      onCapture,
+    ],
   );
 
   return (
@@ -149,8 +187,11 @@ export const CameraContextProvider = ({ children, onClose }: ProviderProps) => {
 };
 
 type ProviderProps = {
-  onClose?: () => void;
+  cameraPictureOptions?: CameraPictureOptions;
   children: React.ReactNode;
+  onCapture?: (capture?: Capture) => void;
+  onClose?: () => void;
+  showPreview?: boolean;
 };
 
 export enum CaptureType {
