@@ -15,10 +15,8 @@ import React, {
 export type CameraContextProps = {
   camera?: Camera;
   setCamera: (camera: Camera) => void;
-  previewCapture?: CameraCapturedPicture | { uri: string };
-  setPreviewCapture: (
-    previewCapture?: CameraCapturedPicture | { uri: string },
-  ) => void;
+  capture?: Capture;
+  setCapture: (previewCapture?: Capture) => void;
   flashMode: FlashMode;
   setFlashMode: (flashMode: FlashMode) => void;
   type: CameraType;
@@ -31,8 +29,8 @@ export type CameraContextProps = {
 const defaultContext: CameraContextProps = {
   camera: undefined,
   setCamera: () => {},
-  previewCapture: undefined,
-  setPreviewCapture: () => {},
+  capture: undefined,
+  setCapture: () => {},
   flashMode: FlashMode.on,
   setFlashMode: () => {},
   type: CameraType.back,
@@ -69,7 +67,7 @@ const reducer = (state: CameraContextProps, action: Action) => {
     case ActionType.SET_PREVIEW_CAPTURE:
       return {
         ...state,
-        previewCapture: payload,
+        capture: payload,
       };
     case ActionType.SET_FLASH_MODE:
       return {
@@ -122,8 +120,8 @@ export const CameraContextProvider = ({ children, onClose }: ProviderProps) => {
     [dispatch],
   );
 
-  const setPreviewCapture = useCallback(
-    (previewCapture?: CameraCapturedPicture | { uri: string }) => {
+  const setCapture = useCallback(
+    (previewCapture?: Capture) => {
       dispatch({
         type: ActionType.SET_PREVIEW_CAPTURE,
         payload: previewCapture,
@@ -136,21 +134,13 @@ export const CameraContextProvider = ({ children, onClose }: ProviderProps) => {
     () => ({
       ...state,
       setCamera,
-      setPreviewCapture,
+      setCapture,
       setFlashMode,
       setType,
       augmentZoom,
       onClose,
     }),
-    [
-      state,
-      setFlashMode,
-      setType,
-      onClose,
-      augmentZoom,
-      setCamera,
-      setPreviewCapture,
-    ],
+    [state, setFlashMode, setType, onClose, augmentZoom, setCamera, setCapture],
   );
 
   return (
@@ -162,3 +152,11 @@ type ProviderProps = {
   onClose?: () => void;
   children: React.ReactNode;
 };
+
+export enum CaptureType {
+  PHOTO,
+  VIDEO,
+}
+export interface Capture extends CameraCapturedPicture {
+  type: CaptureType;
+}
