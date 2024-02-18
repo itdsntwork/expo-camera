@@ -29,6 +29,7 @@ export type CameraContextProps = {
   showPreview?: boolean;
   type: CameraType;
   zoom: number;
+  pickerEnabled?: boolean;
 };
 
 const defaultContext: CameraContextProps = {
@@ -192,6 +193,7 @@ type ProviderProps = {
   onCapture?: (capture?: Capture) => void;
   onClose?: () => void;
   showPreview?: boolean;
+  pickerEnabled?: boolean;
 };
 
 export enum CaptureType {

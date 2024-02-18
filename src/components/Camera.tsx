@@ -4,20 +4,12 @@ import {
   CameraContextProvider,
   Capture,
 } from '../contexts/camera/camera.context';
+import { memo } from 'react';
 
-export default function Camera({
-  visible = true,
-  showPreview,
-  onClose,
-  onCapture,
-}: Props) {
+export const Camera = memo(({ visible = true, ...providerProps }: Props) => {
   return (
     visible && (
-      <CameraContextProvider
-        onClose={onClose}
-        showPreview={showPreview}
-        onCapture={onCapture}
-      >
+      <CameraContextProvider {...providerProps}>
         <View
           style={{
             flex: 1,
@@ -30,11 +22,12 @@ export default function Camera({
       </CameraContextProvider>
     )
   );
-}
+});
 
 type Props = {
   visible?: boolean;
   onClose?: () => void;
   showPreview?: boolean;
   onCapture?: (capture?: Capture) => void;
+  pickerEnabled?: boolean;
 };
